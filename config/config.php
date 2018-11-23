@@ -23,8 +23,8 @@ return [
         'charset' => 'utf8mb4',
     ],
     'cache' => [
-        'cache_type' => 'file',
-        'cache_prefix' => '51thb_16999_',
+        'default' => 'file',
+        'cache_prefix' => 'ivali_ads_api',
         'file' => [
             'path' => PATH_ROOT . '/storage/cache/',
         ],

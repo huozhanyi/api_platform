@@ -1,5 +1,4 @@
 /.idea/
-/vendor/
 /storage/cache/*
 /storage/log/*
 composer.lock
@@ -16,3 +15,4 @@ npm-debug.log
 /nbproject/private/
 
 
+/storage
