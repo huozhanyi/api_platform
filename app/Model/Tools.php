@@ -6,7 +6,7 @@
  * @author wusong <wusong@ivali.com>
  */
 
-namespace mod;
+namespace Model;
 
 class Tools
 {

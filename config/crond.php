@@ -1,6 +1,6 @@
 <?php
 /* CROND 定时器 配置文件 */
-$GLOBALS['crond'] = [
+return [
     /* 配置支持的格式 */
     'the_format' => [
         '*',        //每分钟

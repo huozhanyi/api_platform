@@ -1,0 +1,19 @@
+<div style="font:14px/24px '微软雅黑';padding:30px;"><?php echo $this->msg; ?>, <span id="lazyTime"><?php echo $this->lazyTime; ?></span>秒钟后跳转...</div>
+<script>
+    var redirectUrl = "<?php echo $this->redirectUrl?>";
+    var span = document.getElementById("lazyTime");
+    var second = Number(span.innerHTML);
+
+    var i = second - 1;
+    var temp_key = setInterval(function () {
+        if (i < 0) {
+            clearInterval(temp_key);
+            if (!redirectUrl)
+                history.back();
+            else
+                location = redirectUrl;
+        } else {
+            span.innerHTML = i--;
+        }
+    }, 1000);
+</script>

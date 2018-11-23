@@ -4,7 +4,7 @@
  * @author dalin<lihuanlin@ivali.com>
  * @date 2017-08-16
  */
-namespace ctl;
+namespace Controller;
 
 class Hb
 {
@@ -45,11 +45,11 @@ class Hb
         }
         
         //查看用户是否已经入库
-        $userId = \mod\Hb::getIdByOpenid($data['openid']);
+        $userId = \Model\Hb::getIdByOpenid($data['openid']);
         if ( !$userId )
         {   
             //注册用户
-            $userId = \mod\Hb::addUser($data);
+            $userId = \Model\Hb::addUser($data);
             if ( !$userId )
             {
                 \Flight::json(\lib\Util::apiRes(1, 'LOGIN_ERROR'));
@@ -66,11 +66,11 @@ class Hb
                 'uptime'=>$data['uptime']
             );
             
-            $rs = \mod\Hb::editUser($userId, $udata);
+            $rs = \Model\Hb::editUser($userId, $udata);
         }
             
             //生成openid对应唯一token
-            $token = \mod\Hb::setToken($userId,$data['openid']);
+            $token = \Model\Hb::setToken($userId,$data['openid']);
             
             $result = array(
                 'nickname' => $data['nickname'],
@@ -83,7 +83,7 @@ class Hb
             //关联用户
             if($friendId)
             {
-                \mod\Hb::relateFriends($friendId,$userId);
+                \Model\Hb::relateFriends($friendId,$userId);
             }
             
             \Flight::json(\lib\Util::apiRes(0, $result));
@@ -96,8 +96,8 @@ class Hb
     {
         //红包类型
         $param['type'] = $type;
-        $userId = \mod\Hb::checkAuth($param);
-        $data = \mod\Hb::snatchHb($userId,$param['type']);
+        $userId = \Model\Hb::checkAuth($param);
+        $data = \Model\Hb::snatchHb($userId,$param['type']);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'SNATCH_FAIL' ));
@@ -113,8 +113,8 @@ class Hb
     {
         //红包ID
         $param['hbid'] = $hbid;
-        $userId = \mod\Hb::checkAuth($param);
-        $data = \mod\Hb::confirmHb($userId,$param['hbid']);
+        $userId = \Model\Hb::checkAuth($param);
+        $data = \Model\Hb::confirmHb($userId,$param['hbid']);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'CONFIRM_FAIL' ));
@@ -129,8 +129,8 @@ class Hb
      */
     public static function user()
     {
-        $userId = \mod\Hb::checkAuth();
-        $data = \mod\Hb::getUser($userId);
+        $userId = \Model\Hb::checkAuth();
+        $data = \Model\Hb::getUser($userId);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_USER' ));
@@ -154,8 +154,8 @@ class Hb
      */
     public static function record($page)
     {
-        $userId = \mod\Hb::checkAuth();
-        $data = \mod\Hb::getRecord($userId,$page);
+        $userId = \Model\Hb::checkAuth();
+        $data = \Model\Hb::getRecord($userId,$page);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_DATA' ));
@@ -169,12 +169,12 @@ class Hb
      */
     public static function getList($type)
     {
-        $userId = \mod\Hb::checkAuth();
+        $userId = \Model\Hb::checkAuth();
         if($type == 'friend')
         {
-            $data = \mod\Hb::getFriends($userId);
+            $data = \Model\Hb::getFriends($userId);
         }else{
-            $data = \mod\Hb::getOfficial($userId);
+            $data = \Model\Hb::getOfficial($userId);
         }
         if ( !$data )
         {
@@ -189,7 +189,7 @@ class Hb
      */
     public static function version($system)
     {
-        $data = \mod\Hb::getVersion($system);
+        $data = \Model\Hb::getVersion($system);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_DATA' ));
@@ -243,8 +243,8 @@ class Hb
             exit();
         }
         
-        $userId = \mod\Hb::checkAuth($data);
-        $rdata = \mod\Hb::deposit($userId,$data);
+        $userId = \Model\Hb::checkAuth($data);
+        $rdata = \Model\Hb::deposit($userId,$data);
         if ( !$rdata )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'DEPOSIT_ERROR' ));
@@ -267,7 +267,7 @@ class Hb
             exit();
         }
         
-        $userId = \mod\Hb::checkAuth($param);
+        $userId = \Model\Hb::checkAuth($param);
 
         //初始化缓存类
         $cache = \lib\Cache::init();
@@ -290,7 +290,7 @@ class Hb
         }
         
         //获取验证码
-        $resData = \mod\Hb::getVerCode($mobile,51541,"#code#={$vCode}");
+        $resData = \Model\Hb::getVerCode($mobile,51541,"#code#={$vCode}");
         if ( !$resData )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'API_ERROR' ));
@@ -318,8 +318,8 @@ class Hb
      */
     public static function depositList($page)
     {
-        $userId = \mod\Hb::checkAuth();
-        $data = \mod\Hb::getDepositList($userId,$page);
+        $userId = \Model\Hb::checkAuth();
+        $data = \Model\Hb::getDepositList($userId,$page);
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_DATA' ));
@@ -333,8 +333,8 @@ class Hb
      */
     public static function alldepositList()
     {
-        $userId = \mod\Hb::checkAuth();
-        $data = \mod\Hb::getAllDepositList();
+        $userId = \Model\Hb::checkAuth();
+        $data = \Model\Hb::getAllDepositList();
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_DATA' ));
@@ -348,7 +348,7 @@ class Hb
      */
     public static function recently()
     {
-        $data = \mod\Hb::getRecently();
+        $data = \Model\Hb::getRecently();
         if ( !$data )
         {
             \Flight::json(\lib\Util::apiRes( 1, 'EMPTY_DATA' ));
@@ -362,7 +362,7 @@ class Hb
      */
     public static function config()
     {
-        $config = \mod\Hb::getConfig("mini_program");
+        $config = \Model\Hb::getConfig("mini_program");
         $data['qrcode']['url'] = $config['qrcode'];
         if ( !$data )
         {
@@ -393,7 +393,7 @@ class Hb
 
     private static function wxfs_config($typename)
     {
-        $data = \mod\Hb::wxfsConfig($typename);
+        $data = \Model\Hb::wxfsConfig($typename);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'GET_CONFIG_FAIL'));

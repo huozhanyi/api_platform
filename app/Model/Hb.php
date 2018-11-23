@@ -4,7 +4,7 @@
  * @author dalin<lihuanlin@ivali.com>
  * @date 2017-08-16
  */
-namespace mod;
+namespace Model;
 
 class Hb
 {

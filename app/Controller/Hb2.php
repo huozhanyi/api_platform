@@ -6,7 +6,7 @@
  * @date 2017-08-16
  */
 
-namespace ctl;
+namespace Controller;
 
 class Hb2
 {
@@ -36,7 +36,7 @@ class Hb2
         //获取当前地址
         if (!empty($data['lon']) && !empty($data['lat']))
         {
-            $data['path'] = \mod\Hb2::getPath($data['lon'], $data['lat']);
+            $data['path'] = \Model\Hb2::getPath($data['lon'], $data['lat']);
         } else
         {
             $data['path'] = NULL;
@@ -58,11 +58,11 @@ class Hb2
         }
 
         //查看用户是否已经入库
-        $userId = \mod\Hb2::getIdByOpenid($data['openid']);
+        $userId = \Model\Hb2::getIdByOpenid($data['openid']);
         if (!$userId)
         {
             //注册用户
-            $userId = \mod\Hb2::addUser($data);
+            $userId = \Model\Hb2::addUser($data);
             if (!$userId)
             {
                 \Flight::json(\lib\Util::apiRes(1, 'LOGIN_ERROR'));
@@ -84,11 +84,11 @@ class Hb2
                 'path' => $data['path'], //地址
             );
 
-            $rs = \mod\Hb2::editUser($userId, $udata);
+            $rs = \Model\Hb2::editUser($userId, $udata);
         }
 
         //生成openid对应唯一token
-        $token = \mod\Hb2::setToken($userId, $data['openid']);
+        $token = \Model\Hb2::setToken($userId, $data['openid']);
 
         $result = array(
             'nickname' => $data['nickname'],
@@ -105,12 +105,12 @@ class Hb2
         if ($friendId)
         {
             //将邀请人和被邀请人相互关联
-            \mod\Hb2::relateFriends($friendId, $userId);
+            \Model\Hb2::relateFriends($friendId, $userId);
 
             //新人才给邀请人金币
             if (!empty($isNewUser))
             {
-                $result['goldcoin'] = \mod\Hb2::gainGold($userId, 3, $friendId);
+                $result['goldcoin'] = \Model\Hb2::gainGold($userId, 3, $friendId);
             }
         }
 
@@ -119,7 +119,7 @@ class Hb2
         if (empty($isNewUser))
         {
             //上次签到记录
-            $preRecordGold = \mod\Hb2::getPreRecordGold($userId, 2, 0);
+            $preRecordGold = \Model\Hb2::getPreRecordGold($userId, 2, 0);
 
             //按今天日期来比对
             if (!empty($preRecordGold) && date('ymd', (int) $preRecordGold['itime']) == date('ymd'))
@@ -138,16 +138,16 @@ class Hb2
     {
         //红包类型
         $param['type'] = $type;
-        $userId = \mod\Hb2::checkAuth($param);
+        $userId = \Model\Hb2::checkAuth($param);
 
         //访问接口太频繁
-        if (!\mod\Hb2::checkWealAct($userId, time(), '0_1'))
+        if (!\Model\Hb2::checkWealAct($userId, time(), '0_1'))
         {
             \Flight::json(\lib\Util::apiRes(1, 'SNATCH_OFTEN'));
             exit;
         }
 
-        $data = \mod\Hb2::snatchHb($userId, $param['type']);
+        $data = \Model\Hb2::snatchHb($userId, $param['type']);
 
         if (!$data)
         {
@@ -165,8 +165,8 @@ class Hb2
     {
         //红包ID
         $param['hbid'] = $hbid;
-        $userId = \mod\Hb2::checkAuth($param);
-        $data = \mod\Hb2::confirmHb($userId, $param['hbid']);
+        $userId = \Model\Hb2::checkAuth($param);
+        $data = \Model\Hb2::confirmHb($userId, $param['hbid']);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'CONFIRM_FAIL'));
@@ -182,8 +182,8 @@ class Hb2
      */
     public static function user()
     {
-        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getUser($userId);
+        $userId = \Model\Hb2::checkAuth();
+        $data = \Model\Hb2::getUser($userId);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_USER'));
@@ -207,14 +207,14 @@ class Hb2
             //补充得到地址
             if (empty($result['path']) && !empty($result['lon']) && !empty($result['lat']))
             {
-                $result['path'] = \mod\Hb2::getPath($result['lon'], $result['lat']);
+                $result['path'] = \Model\Hb2::getPath($result['lon'], $result['lat']);
             } else
             {
                 $result['path'] = '';
             }
 
             //上次签到记录
-            $preRecordGold = \mod\Hb2::getPreRecordGold($userId, 2, 0);
+            $preRecordGold = \Model\Hb2::getPreRecordGold($userId, 2, 0);
 
             //按今天日期来比对
             if (!empty($preRecordGold) && date('ymd', (int) $preRecordGold['itime']) == date('ymd'))
@@ -234,8 +234,8 @@ class Hb2
      */
     public static function record($page)
     {
-        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getRecord($userId, $page);
+        $userId = \Model\Hb2::checkAuth();
+        $data = \Model\Hb2::getRecord($userId, $page);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -250,8 +250,8 @@ class Hb2
      */
     public static function recordGold($page)
     {
-        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getRecordGold($userId, $page);
+        $userId = \Model\Hb2::checkAuth();
+        $data = \Model\Hb2::getRecordGold($userId, $page);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -267,7 +267,7 @@ class Hb2
     public static function allRecordGoldHb($page = 0)
     {
 //        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getAllRecordGoldHb($page);
+        $data = \Model\Hb2::getAllRecordGoldHb($page);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -283,7 +283,7 @@ class Hb2
     public static function adslist()
     {
 //        $data = \mod\Hb2::getRecordGold($userId, $page);
-        $data = \mod\Hb2::getAdslist();
+        $data = \Model\Hb2::getAdslist();
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_ADS'));
@@ -298,13 +298,13 @@ class Hb2
      */
     public static function getList($type)
     {
-        $userId = \mod\Hb2::checkAuth();
+        $userId = \Model\Hb2::checkAuth();
         if ($type == 'friend')
         {
-            $data = \mod\Hb2::getFriends($userId);
+            $data = \Model\Hb2::getFriends($userId);
         } else
         {
-            $data = \mod\Hb2::getOfficial($userId);
+            $data = \Model\Hb2::getOfficial($userId);
         }
         if (!$data)
         {
@@ -321,7 +321,7 @@ class Hb2
 
     public static function version($system)
     {
-        $data = \mod\Hb2::getVersion($system);
+        $data = \Model\Hb2::getVersion($system);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -376,8 +376,8 @@ class Hb2
             exit();
         }
 
-        $userId = \mod\Hb2::checkAuth($data);
-        $rdata = \mod\Hb2::deposit($userId, $data);
+        $userId = \Model\Hb2::checkAuth($data);
+        $rdata = \Model\Hb2::deposit($userId, $data);
         if (!$rdata)
         {
             \Flight::json(\lib\Util::apiRes(1, 'DEPOSIT_ERROR'));
@@ -401,7 +401,7 @@ class Hb2
             exit();
         }
 
-        $userId = \mod\Hb2::checkAuth($param);
+        $userId = \Model\Hb2::checkAuth($param);
 
         //初始化缓存类
         $cache = \lib\Cache::init();
@@ -424,7 +424,7 @@ class Hb2
         }
 
         //获取验证码
-        $resData = \mod\Hb2::getVerCode($mobile, 51541, "#code#={$vCode}");
+        $resData = \Model\Hb2::getVerCode($mobile, 51541, "#code#={$vCode}");
         if (!$resData)
         {
             \Flight::json(\lib\Util::apiRes(1, 'API_ERROR'));
@@ -452,8 +452,8 @@ class Hb2
     public static function depositList($page)
     {
 
-        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getDepositList($userId, $page);
+        $userId = \Model\Hb2::checkAuth();
+        $data = \Model\Hb2::getDepositList($userId, $page);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -469,7 +469,7 @@ class Hb2
     public static function alldepositList()
     {
 //        $userId = \mod\Hb2::checkAuth();
-        $data = \mod\Hb2::getAllDepositList();
+        $data = \Model\Hb2::getAllDepositList();
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -484,7 +484,7 @@ class Hb2
      */
     public static function recently()
     {
-        $data = \mod\Hb2::getRecently();
+        $data = \Model\Hb2::getRecently();
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'EMPTY_DATA'));
@@ -500,7 +500,7 @@ class Hb2
 
     public static function config()
     {
-        $config = \mod\Hb2::getConfig("mini_program");
+        $config = \Model\Hb2::getConfig("mini_program");
         $data['qrcode']['url'] = $config['qrcode'];
         if (!$data)
         {
@@ -515,7 +515,7 @@ class Hb2
     public static function configGoldProb()
     {
 //        $userId = \mod\Hb2::checkAuth();
-        $config = \mod\Hb2::getConfig("gold_prob");
+        $config = \Model\Hb2::getConfig("gold_prob");
         $data['ext1'] = $config['ext1'];
 //        $data['ext2'] = $config['ext2'];
 //        $data['ext3'] = $config['ext3'];
@@ -539,12 +539,12 @@ class Hb2
             \Flight::json(\lib\Util::apiRes(1, 'WEAL_FAIL'));
             exit;
         }
-        $userId = \mod\Hb2::checkAuth(['now' => $now]);
+        $userId = \Model\Hb2::checkAuth(['now' => $now]);
         $isgold = TRUE; //默认取金币
         $type = 1; //金币
         $typesub = 1; //直接金币
         //先取红包or金币的概率值
-        $config = \mod\Hb2::getConfig("gold_prob");
+        $config = \Model\Hb2::getConfig("gold_prob");
         $config = array_filter($config);
 
         //空值，非数值，超出0~1范围的数均为无效，取默认数 
@@ -561,7 +561,7 @@ class Hb2
         }
 
         //领取太频繁
-        if (!\mod\Hb2::checkWealAct($userId, $now, $type . '_' . $typesub))
+        if (!\Model\Hb2::checkWealAct($userId, $now, $type . '_' . $typesub))
         {
             \Flight::json(\lib\Util::apiRes(1, 'WEAL_OFTEN'));
             exit;
@@ -574,7 +574,7 @@ class Hb2
         } else
         {
             //直接领取红包
-            $data = \mod\Hb2::snatchWealHb($userId);
+            $data = \Model\Hb2::snatchWealHb($userId);
 
             if (!$data)
             {
@@ -599,10 +599,10 @@ class Hb2
             exit;
         }
 
-        $userId = \mod\Hb2::checkAuth(['now' => $now]);
+        $userId = \Model\Hb2::checkAuth(['now' => $now]);
 
         //领取太频繁
-        if (!\mod\Hb2::checkWealAct($userId, $now, '1_2')) //2是签到领
+        if (!\Model\Hb2::checkWealAct($userId, $now, '1_2')) //2是签到领
         {
             \Flight::json(\lib\Util::apiRes(1, 'SIGNED_OFTEN'));
             exit;
@@ -626,16 +626,16 @@ class Hb2
         $expense_type = isset($request->query['type']) ? (int) $request->query['type'] : 11;
 
         //带上红包数量鉴权
-        $userId = \mod\Hb2::checkAuth(['goldcoin' => $goldcoin, 'type' => $expense_type]);
+        $userId = \Model\Hb2::checkAuth(['goldcoin' => $goldcoin, 'type' => $expense_type]);
 
         //消费太频繁
-        if (!\mod\Hb2::checkExpenseAct($userId, time(), $expense_type))
+        if (!\Model\Hb2::checkExpenseAct($userId, time(), $expense_type))
         {
             \Flight::json(\lib\Util::apiRes(1, 'EXPENSE_OFTEN'));
             exit;
         }
 
-        $data = \mod\Hb2::expenseGd($userId, $goldcoin, $type . '_' . $expense_type); //金币1 消费11
+        $data = \Model\Hb2::expenseGd($userId, $goldcoin, $type . '_' . $expense_type); //金币1 消费11
 
         if (!$data)
         {
@@ -652,7 +652,7 @@ class Hb2
      */
     private static function gain($userId, $type = 1, $friend = 0)
     {
-        $data = \mod\Hb2::gainGold($userId, $type, $friend);
+        $data = \Model\Hb2::gainGold($userId, $type, $friend);
 
         if (!$data)
         {
@@ -672,14 +672,14 @@ class Hb2
     public static function getRedirectUrl()
     {
         //获得当前用户id
-        $userId = \mod\Hb2::checkAuth();
+        $userId = \Model\Hb2::checkAuth();
         //获取用户信息
-        $userInfo = \mod\Hb2::getUser($userId);
+        $userInfo = \Model\Hb2::getUser($userId);
         $config_duiba = \lib\Util::getConfig('duiba');
 
         $data['uid'] = $userId;
         $data['goldcoin'] = $userInfo['goldcoin'];
-        $data['redirectUrl'] = \mod\Hb2::buildCreditAutoLoginRequest($config_duiba['AppKey'], $config_duiba['AppSecret'], $data['uid'], $data['goldcoin']);
+        $data['redirectUrl'] = \Model\Hb2::buildCreditAutoLoginRequest($config_duiba['AppKey'], $config_duiba['AppSecret'], $data['uid'], $data['goldcoin']);
 
         if (!$data)
         {
@@ -717,11 +717,11 @@ class Hb2
         {
             $config_duiba = \lib\Util::getConfig('duiba');
             //验证参数正常，说明是兑吧的请求
-            $verify = \mod\Hb2::parseCreditConsume($config_duiba['AppKey'], $config_duiba['AppSecret'], $request_array);
+            $verify = \Model\Hb2::parseCreditConsume($config_duiba['AppKey'], $config_duiba['AppSecret'], $request_array);
             if (!empty($verify[0]) && $verify[0] == 'ok')
             {
                 //验证成功为兑吧订单，下面进行本地订单生成和扣除金币
-                $re_order = \mod\Hb2::addDuibaOrder($request_array['uid'], $request_array);
+                $re_order = \Model\Hb2::addDuibaOrder($request_array['uid'], $request_array);
 
                 if (!empty($re_order[0]) && $re_order[0] == 'ok')
                 {
@@ -776,13 +776,13 @@ class Hb2
         $config_duiba = \lib\Util::getConfig('duiba');
 
         //获得确认数据的验证
-        $re_order = \mod\Hb2::parseCreditNotify($config_duiba['AppKey'], $config_duiba['AppSecret'], $request_array);
+        $re_order = \Model\Hb2::parseCreditNotify($config_duiba['AppKey'], $config_duiba['AppSecret'], $request_array);
 
         //兑换是否成功，状态是boolean的true和false
         if ($re_order[0])
         {
             //确认消费并扣除金币
-            $re = \mod\Hb2::affirmDuibaOrder($request_array);
+            $re = \Model\Hb2::affirmDuibaOrder($request_array);
 
             if (!empty($re['ret']) && $re['ret'] == 1)
             {
@@ -819,7 +819,7 @@ class Hb2
 
     private static function wxfs_config($typename)
     {
-        $data = \mod\Hb2::wxfsConfig($typename);
+        $data = \Model\Hb2::wxfsConfig($typename);
         if (!$data)
         {
             \Flight::json(\lib\Util::apiRes(1, 'GET_CONFIG_FAIL'));

@@ -6,7 +6,7 @@
  * @date 2017-08-16
  */
 
-namespace mod;
+namespace Model;
 
 class Hb2
 {
@@ -1825,7 +1825,7 @@ class Hb2
         {
             //增加记录
             $param_insert = [
-                'orderopenid' => \mod\Hb2::getUniqueId('addDuibaOrder'), //生成时间
+                'orderopenid' => \Model\Hb2::getUniqueId('addDuibaOrder'), //生成时间
                 'orderNum' => $param['orderNum'],
                 'uid' => $param['uid'],
                 'credits' => $param['credits'],
